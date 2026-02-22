@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Beginning of Infinity — Visual Guide</title>
+  <meta name="description" content="A bilingual visual guide to The Beginning of Infinity by David Deutsch — explanations that transform the world." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400;1,700&family=Lora:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@300;400;500&family=Noto+Serif+SC:wght@400;700;900&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ============================================================
+       TOKENS
+    ============================================================ */
+    :root {
+      --night:     #060A14;
+      --deep:      #091526;
+      --mid:       #0D1F38;
+      --dawn:      #1A3A5C;
+      --card:      rgba(255,255,255,0.03);
+      --card-hi:   rgba(255,255,255,0.06);
+      --border:    rgba(0,212,255,0.12);
+      --border-hi: rgba(0,212,255,0.30);
+      --text:      #E2EAF4;
+      --dim:       #7090AC;
+      --cyan:      #00D4FF;
+      --cyan-dim:  rgba(0,212,255,0.08);
+      --cyan-glow: rgba(0,212,255,0.15);
+      --fd:        'Playfair Display','Noto Serif SC',Georgia,serif;
+      --fb:        'Lora','Noto Serif SC',Georgia,serif;
+      --fm:        'JetBrains Mono',monospace;
+    }
+
+    /* ============================================================
+       RESET & BASE
+    ============================================================ */
+    *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: linear-gradient(180deg,
+        var(--night) 0%,
+        var(--deep)  20%,
+        var(--mid)   50%,
+        var(--dawn)  100%);
+      background-attachment: fixed;
+      color: var(--text);
+      font-family: var(--fb);
+      font-size: 1rem;
+      line-height: 1.8;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ============================================================
+       PROGRESS BAR
+    ============================================================ */
+    #pb {
+      position: fixed;
+      top: 0; left: 0;
+      height: 2px;
+      width: 0;
+      background: linear-gradient(90deg, var(--cyan), #4F9FFF);
+      z-index: 9999;
+      transition: width 0.1s linear;
+      box-shadow: 0 0 8px var(--cyan);
+    }
+
+    /* ============================================================
+       STICKY NAV
+    ============================================================ */
+    #snav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      height: 52px;
+      background: rgba(6,10,20,0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      z-index: 100;
+      opacity: 0;
+      transform: translateY(-100%);
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    #snav.show { opacity: 1; transform: none; }
+
+    .nav-t {
+      font-family: var(--fd);
+      font-style: italic;
+      font-size: 0.85rem;
+      color: var(--dim);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .nav-r {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1.25rem;
+    }
+
+    .nav-links a {
+      font-family: var(--fm);
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+      color: var(--dim);
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--cyan); }
+
+    /* language pill */
+    .lpill {
+      display: flex;
+      align-items: center;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 3px;
+      cursor: pointer;
+      gap: 2px;
+    }
+    .lpill span {
+      font-family: var(--fm);
+      font-size: 0.66rem;
+      padding: 3px 10px;
+      border-radius: 14px;
+      color: rgba(255,255,255,0.35);
+      transition: all 0.2s;
+      letter-spacing: 0.05em;
+      user-select: none;
+    }
+    .lpill span.on { background: var(--cyan); color: #000; }
+
+    /* ============================================================
+       LANGUAGE TOGGLE
+    ============================================================ */
+    .en, .zh { display: none; }
+    body.lang-en .en { display: block; }
+    body.lang-zh .zh { display: block; }
+    span.en, span.zh { display: none !important; }
+    body.lang-en span.en { display: inline !important; }
+    body.lang-zh span.zh { display: inline !important; }
+
+    /* ============================================================
+       HERO
+    ============================================================ */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 8rem 2rem 6rem;
+      overflow: hidden;
+    }
+
+    /* Expanding rings — pure CSS */
+    .ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(0,212,255,0.08);
+      pointer-events: none;
+    }
+    .ring-1 { width: 500px; height: 500px; right: -100px; top: 50%; transform: translateY(-50%); }
+    .ring-2 { width: 750px; height: 750px; right: -220px; top: 50%; transform: translateY(-50%); border-color: rgba(0,212,255,0.05); }
+    .ring-3 { width: 1050px; height: 1050px; right: -370px; top: 50%; transform: translateY(-50%); border-color: rgba(0,212,255,0.03); }
+
+    /* Center dot */
+    .ring-dot {
+      position: absolute;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--cyan);
+      right: 155px;
+      top: 50%;
+      transform: translateY(-50%);
+      box-shadow: 0 0 12px var(--cyan), 0 0 30px rgba(0,212,255,0.4);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+      max-width: 780px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .hero-eyebrow {
+      font-family: var(--fm);
+      font-size: 0.66rem;
+      letter-spacing: 0.2em;
+      color: var(--cyan);
+      text-transform: uppercase;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .hero-eyebrow::after {
+      content: '';
+      width: 40px; height: 1px;
+      background: var(--cyan);
+      opacity: 0.4;
+    }
+
+    .hero-title-en {
+      font-family: var(--fd);
+      font-size: clamp(2.8rem, 7vw, 5.5rem);
+      font-weight: 900;
+      line-height: 1.06;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+    .hero-title-zh {
+      font-family: var(--fd);
+      font-size: clamp(2.2rem, 5vw, 4rem);
+      font-weight: 700;
+      line-height: 1.15;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+
+    .hero-sub {
+      font-family: var(--fb);
+      font-style: italic;
+      font-size: clamp(0.95rem, 1.8vw, 1.2rem);
+      color: var(--dim);
+      margin-bottom: 2.5rem;
+    }
+
+    .hero-author {
+      font-family: var(--fm);
+      font-size: 0.7rem;
+      letter-spacing: 0.14em;
+      color: var(--dim);
+      text-transform: uppercase;
+      margin-bottom: 3.5rem;
+    }
+    .hero-author strong { color: var(--text); }
+
+    .hero-stats {
+      display: flex;
+      gap: 2.5rem;
+      flex-wrap: wrap;
+    }
+
+    .stat { display: flex; flex-direction: column; gap: 0.2rem; }
+    .stat-num {
+      font-family: var(--fd);
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: var(--cyan);
+      line-height: 1;
+    }
+    .stat-label {
+      font-family: var(--fm);
+      font-size: 0.58rem;
+      letter-spacing: 0.12em;
+      color: var(--dim);
+      text-transform: uppercase;
+    }
+
+    /* ============================================================
+       LAYOUT
+    ============================================================ */
+    .container {
+      max-width: 840px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    section {
+      padding: 7rem 0;
+      border-top: 1px solid rgba(0,212,255,0.08);
+    }
+
+    /* ============================================================
+       SECTION LABEL
+    ============================================================ */
+    .sec-label {
+      font-family: var(--fm);
+      font-size: 0.6rem;
+      letter-spacing: 0.22em;
+      color: var(--cyan);
+      text-transform: uppercase;
+      margin-bottom: 2.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .sec-label::before {
+      content: '';
+      width: 20px; height: 1px;
+      background: var(--cyan);
+    }
+
+    /* ============================================================
+       TYPOGRAPHY
+    ============================================================ */
+    .display {
+      font-family: var(--fd);
+      font-size: clamp(1.7rem, 3.5vw, 2.6rem);
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--text);
+      margin-bottom: 1.5rem;
+    }
+
+    .lead {
+      font-size: 1.05rem;
+      color: rgba(226,234,244,0.85);
+      line-height: 1.9;
+      margin-bottom: 1.25rem;
+    }
+
+    .body-text {
+      font-size: 0.94rem;
+      color: rgba(226,234,244,0.7);
+      line-height: 1.9;
+      margin-bottom: 1rem;
+    }
+
+    em { font-style: italic; }
+
+    /* ============================================================
+       THESIS SECTION
+    ============================================================ */
+    .thesis-core {
+      margin-top: 3rem;
+      padding: 2.5rem;
+      background: var(--cyan-dim);
+      border: 1px solid var(--border-hi);
+      border-radius: 2px;
+      position: relative;
+    }
+    .thesis-core::before {
+      content: '"';
+      font-family: var(--fd);
+      font-size: 8rem;
+      color: var(--cyan);
+      opacity: 0.08;
+      position: absolute;
+      top: -1rem;
+      left: 1.5rem;
+      line-height: 1;
+      pointer-events: none;
+    }
+    .thesis-core p {
+      font-family: var(--fd);
+      font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+      font-style: italic;
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    .htv-box {
+      margin-top: 2rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .htv-card {
+      padding: 1.75rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+    }
+    .htv-card:hover {
+      background: var(--card-hi);
+      border-color: var(--border-hi);
+    }
+    .htv-card h4 {
+      font-family: var(--fm);
+      font-size: 0.62rem;
+      letter-spacing: 0.18em;
+      color: var(--cyan);
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+    .htv-card p {
+      font-size: 0.9rem;
+      color: rgba(226,234,244,0.75);
+      line-height: 1.75;
+    }
+
+    /* ============================================================
+       CONCEPTS GRID
+    ============================================================ */
+    .concepts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1.25rem;
+      margin-top: 2.5rem;
+    }
+
+    .concept-card {
+      padding: 1.75rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      transition: background 0.2s, border-color 0.2s, transform 0.2s;
+      cursor: default;
+    }
+    .concept-card:hover {
+      background: var(--card-hi);
+      border-color: var(--border-hi);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    }
+
+    .concept-icon {
+      font-family: var(--fm);
+      font-size: 0.62rem;
+      letter-spacing: 0.15em;
+      color: var(--cyan);
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .concept-icon::before {
+      content: '';
+      width: 16px; height: 1px;
+      background: var(--cyan);
+      opacity: 0.5;
+    }
+
+    .concept-card h3 {
+      font-family: var(--fd);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.35rem;
+    }
+    .concept-card .zh-name {
+      font-family: var(--fb);
+      font-size: 0.82rem;
+      color: var(--cyan);
+      opacity: 0.7;
+      margin-bottom: 1rem;
+    }
+    .concept-card p {
+      font-size: 0.88rem;
+      color: rgba(226,234,244,0.65);
+      line-height: 1.75;
+    }
+
+    /* ============================================================
+       CHAPTERS SECTION
+    ============================================================ */
+    .chapters-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 2.5rem;
+    }
+
+    .chapter-card {
+      padding: 1.5rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      display: grid;
+      grid-template-columns: 2.5rem 1fr;
+      gap: 1rem;
+      align-items: start;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .chapter-card:hover {
+      background: var(--card-hi);
+      border-color: var(--border-hi);
+    }
+
+    .ch-num {
+      font-family: var(--fm);
+      font-size: 0.68rem;
+      color: var(--cyan);
+      opacity: 0.5;
+      line-height: 1.5;
+      text-align: right;
+      padding-top: 0.2rem;
+    }
+
+    .ch-body h4 {
+      font-family: var(--fd);
+      font-size: 0.97rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.35rem;
+      line-height: 1.35;
+    }
+    .ch-body p {
+      font-size: 0.83rem;
+      color: rgba(226,234,244,0.55);
+      line-height: 1.7;
+    }
+
+    /* ============================================================
+       OPTIMISM — HERO QUOTE SECTION
+    ============================================================ */
+    .optimism-wrap {
+      text-align: center;
+      padding: 4rem 2rem;
+      position: relative;
+    }
+
+    .optimism-label {
+      font-family: var(--fm);
+      font-size: 0.6rem;
+      letter-spacing: 0.25em;
+      color: var(--cyan);
+      text-transform: uppercase;
+      margin-bottom: 2.5rem;
+      opacity: 0.7;
+    }
+
+    .optimism-quote {
+      font-family: var(--fd);
+      font-size: clamp(1.5rem, 4vw, 3.2rem);
+      font-weight: 700;
+      line-height: 1.25;
+      color: var(--text);
+      max-width: 700px;
+      margin: 0 auto 2rem;
+    }
+
+    .optimism-quote .accent { color: var(--cyan); }
+
+    .optimism-sub {
+      font-family: var(--fb);
+      font-style: italic;
+      font-size: 1rem;
+      color: var(--dim);
+      max-width: 520px;
+      margin: 0 auto;
+      line-height: 1.75;
+    }
+
+    /* Glow rings behind optimism */
+    .opt-ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(0,212,255,0.06);
+      left: 50%; top: 50%;
+      transform: translate(-50%,-50%);
+      pointer-events: none;
+    }
+    .opt-ring-1 { width: 300px; height: 300px; }
+    .opt-ring-2 { width: 500px; height: 500px; border-color: rgba(0,212,255,0.04); }
+    .opt-ring-3 { width: 700px; height: 700px; border-color: rgba(0,212,255,0.025); }
+
+    /* ============================================================
+       MULTIVERSE SECTION
+    ============================================================ */
+    .multiverse-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      margin-top: 2.5rem;
+      align-items: start;
+    }
+
+    .multiverse-branches {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-top: 2rem;
+    }
+
+    .branch {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--cyan);
+      border-radius: 2px;
+      font-size: 0.88rem;
+      color: rgba(226,234,244,0.7);
+    }
+    .branch .b-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--cyan);
+      flex-shrink: 0;
+      opacity: 0.6;
+    }
+
+    /* ============================================================
+       QUOTES SECTION
+    ============================================================ */
+    .quotes-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 1.75rem;
+      margin-top: 2.5rem;
+    }
+
+    .quote-card {
+      padding: 2rem 2.25rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      position: relative;
+      transition: border-color 0.2s;
+    }
+    .quote-card:hover { border-color: var(--border-hi); }
+
+    .quote-card::before {
+      content: '"';
+      font-family: var(--fd);
+      font-size: 5rem;
+      color: var(--cyan);
+      opacity: 0.1;
+      position: absolute;
+      top: 0.5rem;
+      left: 1.5rem;
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    .quote-card p {
+      font-family: var(--fb);
+      font-style: italic;
+      font-size: 1.05rem;
+      color: rgba(226,234,244,0.88);
+      line-height: 1.75;
+      padding-left: 1rem;
+    }
+
+    .quote-card .zh-translation {
+      font-size: 0.88rem;
+      color: rgba(226,234,244,0.5);
+      font-style: normal;
+      margin-top: 0.75rem;
+      padding-left: 1rem;
+      border-left: 2px solid rgba(0,212,255,0.2);
+    }
+
+    /* ============================================================
+       SIGNIFICANCE SECTION
+    ============================================================ */
+    .sig-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      margin-top: 2.5rem;
+    }
+
+    .sig-card {
+      padding: 1.75rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+    }
+
+    .sig-card .num {
+      font-family: var(--fd);
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: var(--cyan);
+      opacity: 0.3;
+      line-height: 1;
+      margin-bottom: 0.75rem;
+    }
+    .sig-card h4 {
+      font-family: var(--fd);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.6rem;
+    }
+    .sig-card p {
+      font-size: 0.86rem;
+      color: rgba(226,234,244,0.6);
+      line-height: 1.75;
+    }
+
+    /* ============================================================
+       FOOTER
+    ============================================================ */
+    footer {
+      border-top: 1px solid rgba(0,212,255,0.08);
+      padding: 3.5rem 2rem;
+      text-align: center;
+    }
+
+    .footer-mark {
+      font-family: var(--fd);
+      font-size: 1.2rem;
+      font-style: italic;
+      color: var(--dim);
+      margin-bottom: 1rem;
+    }
+
+    .footer-meta {
+      font-family: var(--fm);
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      color: var(--dim);
+      opacity: 0.5;
+      text-transform: uppercase;
+    }
+
+    /* ============================================================
+       REACH DIAGRAM
+    ============================================================ */
+    .reach-diagram {
+      position: relative;
+      height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      margin: 3rem 0;
+    }
+
+    .reach-source {
+      position: absolute;
+      left: 0;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 12px var(--cyan);
+    }
+
+    .reach-line {
+      position: absolute;
+      left: 5px;
+      height: 1px;
+      background: linear-gradient(90deg, var(--cyan), transparent);
+      opacity: 0.4;
+    }
+    .reach-line-1 { width: 80%;  transform: rotate(0deg);   transform-origin: left center; }
+    .reach-line-2 { width: 75%;  transform: rotate(18deg);  transform-origin: left center; }
+    .reach-line-3 { width: 70%;  transform: rotate(-18deg); transform-origin: left center; }
+    .reach-line-4 { width: 60%;  transform: rotate(36deg);  transform-origin: left center; }
+    .reach-line-5 { width: 55%;  transform: rotate(-36deg); transform-origin: left center; }
+
+    .reach-label {
+      position: absolute;
+      right: 0;
+      font-family: var(--fm);
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      color: var(--cyan);
+      text-transform: uppercase;
+      opacity: 0.6;
+    }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+    @media (max-width: 640px) {
+      .htv-box      { grid-template-columns: 1fr; }
+      .chapters-grid { grid-template-columns: 1fr; }
+      .multiverse-grid { grid-template-columns: 1fr; }
+      .sig-grid     { grid-template-columns: 1fr; }
+      .ring-1, .ring-2, .ring-3, .ring-dot { display: none; }
+      .hero { padding: 6rem 1.5rem 4rem; }
+      .container { padding: 0 1.5rem; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+
+<body class="lang-zh">
+
+  <!-- PROGRESS BAR -->
+  <div id="pb"></div>
+
+  <!-- STICKY NAV -->
+  <nav id="snav">
+    <span class="nav-t">
+      <span class="en">The Beginning of Infinity</span>
+      <span class="zh">无穷的开始</span>
+    </span>
+    <div class="nav-r">
+      <ul class="nav-links">
+        <li><a href="#thesis">
+          <span class="en">Thesis</span>
+          <span class="zh">核心论点</span>
+        </a></li>
+        <li><a href="#concepts">
+          <span class="en">Concepts</span>
+          <span class="zh">核心概念</span>
+        </a></li>
+        <li><a href="#chapters">
+          <span class="en">Chapters</span>
+          <span class="zh">章节</span>
+        </a></li>
+        <li><a href="#quotes">
+          <span class="en">Quotes</span>
+          <span class="zh">金句</span>
+        </a></li>
+      </ul>
+      <div class="lpill" id="langBtn">
+        <span class="en" id="enTab">EN</span>
+        <span class="zh on" id="zhTab">中</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ════════════════════════════════════════════════
+       HERO
+  ════════════════════════════════════════════════ -->
+  <header class="hero">
+    <!-- Rings -->
+    <div class="ring ring-1"></div>
+    <div class="ring ring-2"></div>
+    <div class="ring ring-3"></div>
+    <div class="ring-dot"></div>
+
+    <div class="hero-inner">
+      <div class="hero-eyebrow">
+        <span class="en">David Deutsch · Oxford · 2011</span>
+        <span class="zh">大卫·多伊奇 · 牛津大学 · 2011</span>
+      </div>
+
+      <h1 class="hero-title-en en">The Beginning<br>of Infinity</h1>
+      <h1 class="hero-title-zh zh">无穷的开始</h1>
+
+      <p class="hero-sub">
+        <span class="en">Explanations That Transform the World</span>
+        <span class="zh">改变世界的解释</span>
+      </p>
+
+      <p class="hero-author">
+        <span class="en">By <strong>David Deutsch</strong> — Quantum Physicist, Pioneer of Quantum Computing</span>
+        <span class="zh">作者 <strong>大卫·多伊奇</strong> — 量子物理学家，量子计算机理论奠基人</span>
+      </p>
+
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-num">18</span>
+          <span class="stat-label en">Chapters</span>
+          <span class="stat-label zh">章节</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num">487</span>
+          <span class="stat-label en">Pages</span>
+          <span class="stat-label zh">页</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num">∞</span>
+          <span class="stat-label en">Reach of Knowledge</span>
+          <span class="stat-label zh">知识的触及范围</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ════════════════════════════════════════════════
+       THESIS
+  ════════════════════════════════════════════════ -->
+  <section id="thesis">
+    <div class="container">
+      <div class="sec-label">
+        <span class="en">Central Thesis</span>
+        <span class="zh">核心论点</span>
+      </div>
+
+      <h2 class="display">
+        <span class="en">All Progress Begins with<br>a Good Explanation</span>
+        <span class="zh">一切进步，始于好解释</span>
+      </h2>
+
+      <p class="lead en">
+        The central thesis is radical in its simplicity: all progress — scientific, moral, political, artistic — derives from a single activity: the quest for <em>good explanations</em>. A good explanation is one that is <em>hard to vary</em> while still accounting for the phenomena it addresses.
+      </p>
+      <p class="lead zh">
+        本书的核心论点简洁而激进：所有进步——无论是科学的、道德的、政治的还是艺术的——都源自一种活动：对<em>好解释</em>的追求。好解释的标准是<em>难以随意改变</em>——改变其任何细节都会破坏解释本身。
+      </p>
+
+      <p class="body-text en">
+        From this foundation, Deutsch builds toward his master claim: humanity stands at the <em>beginning</em> of an infinite sequence of knowledge creation. There are no fundamental limits — no laws of physics, no cosmic ceiling — on what humans can eventually understand, achieve, or build. Problems are inevitable, but all problems are soluble in principle. The only thing separating us from solutions is knowledge we do not yet have.
+      </p>
+      <p class="body-text zh">
+        由此，多伊奇提出他的核心主张：人类站在<em>无限</em>知识创造序列的起点。没有任何物理定律能限制人类最终可以理解、控制和实现的事物边界。问题不可避免，但所有问题原则上都可被解决。阻碍我们的唯一屏障，是我们尚未拥有的知识。
+      </p>
+
+      <div class="thesis-core">
+        <p class="en">"The growth of knowledge is a transition from problems to better problems — not to the absence of problems. An unproblematic state is a state without creative thought. Its other name is death."</p>
+        <p class="zh">「知识的增长，是从问题到更好的问题的过渡——而不是问题的消失。没有问题的状态就是没有创造性思维的状态。它的另一个名字，叫做死亡。」</p>
+      </div>
+
+      <div class="htv-box">
+        <div class="htv-card">
+          <h4>
+            <span class="en">Hard to Vary</span>
+            <span class="zh">难以随意改变</span>
+          </h4>
+          <p class="en">A good explanation cannot be tweaked without destroying it. "The gods caused the tide" can explain anything and therefore explains nothing. Newton's gravity is specific — change one constant and it breaks.</p>
+          <p class="zh">好解释的任何细节都无法任意调整。"神明造就潮汐"可以解释一切，因此什么都没解释。牛顿引力理论则不同——改变一个常数，整个理论就崩溃了。</p>
+        </div>
+        <div class="htv-card">
+          <h4>
+            <span class="en">Infinite Reach</span>
+            <span class="zh">无限触及</span>
+          </h4>
+          <p class="en">Good explanations apply far beyond the phenomena that originally motivated them. Newton's laws of gravity reached from falling apples to the orbit of distant stars — and then to GPS satellites we hadn't yet built.</p>
+          <p class="zh">好解释的触及范围远超其诞生的原始场景。牛顿引力定律从苹果落地延伸至遥远星体的轨道，再到人类后来发明的GPS卫星——牛顿本人从未预见到这些应用。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════
+       CORE CONCEPTS
+  ════════════════════════════════════════════════ -->
+  <section id="concepts">
+    <div class="container">
+      <div class="sec-label">
+        <span class="en">Core Concepts</span>
+        <span class="zh">核心概念</span>
+      </div>
+
+      <h2 class="display">
+        <span class="en">The Architecture<br>of Knowledge</span>
+        <span class="zh">知识的建筑</span>
+      </h2>
+
+      <p class="lead en">Eight interlocking ideas that together form Deutsch's unified theory of knowledge, progress, and the human future.</p>
+      <p class="lead zh">八个相互咬合的概念，共同构成多伊奇关于知识、进步与人类未来的统一理论。</p>
+
+      <div class="concepts-grid">
+
+        <div class="concept-card">
+          <div class="concept-icon">01</div>
+          <h3>Good Explanations</h3>
+          <div class="zh-name">好解释</div>
+          <p class="en">The engine of all progress. Hard to vary, testable, with reach far beyond original observations. The standard that separates genuine understanding from mere correlation.</p>
+          <p class="zh">所有进步的引擎。难以随意改变、可检验、触及范围远超原始观察。这是区分真正理解与单纯相关性的标准。</p>
+        </div>
+
+        <div class="concept-card">
+          <div class="concept-icon">02</div>
+          <h3>Fallibilism</h3>
+          <div class="zh-name">可错主义</div>
+          <p class="en">All knowledge is conjectural and may contain errors. Not relativism — its opposite. Because we acknowledge fallibility, we have reason to seek criticism and improvement. Progress requires it.</p>
+          <p class="zh">所有知识都是猜测性的，可能包含错误。这不是相对主义——恰恰相反：正因为承认可错性，我们才有理由主动寻求批判和改进。进步需要它。</p>
+        </div>
+
+        <div class="concept-card">
+          <div class="concept-icon">03</div>
+          <h3>The Reach of Knowledge</h3>
+          <div class="zh-name">知识的触及范围</div>
+          <p class="en">Good explanations apply universally. General relativity was created to explain Mercury's orbit — its reach now extends to GPS satellites, gravitational waves, and the structure of the cosmos.</p>
+          <p class="zh">好解释具有普适性。广义相对论为解释水星轨道而生，其触及范围已延伸至GPS卫星、引力波探测和整个宇宙的结构。</p>
+        </div>
+
+        <div class="concept-card">
+          <div class="concept-icon">04</div>
+          <h3>Jump to Universality</h3>
+          <div class="zh-name">跳跃到普适性</div>
+          <p class="en">Certain systems cross a threshold beyond which they can perform any task in their domain. Arabic numerals, the Turing machine, and DNA each made this discontinuous, transformative leap.</p>
+          <p class="zh">某些系统跨越临界点后，能在其领域内完成任何任务。阿拉伯数字、图灵机和DNA都经历了这种不连续的、革命性的跳跃。</p>
+        </div>
+
+        <div class="concept-card">
+          <div class="concept-icon">05</div>
+          <h3>Static vs Dynamic Societies</h3>
+          <div class="zh-name">静态 vs 动态社会</div>
+          <p class="en">Static societies are governed by tradition and anti-rational memes — they resist change and cannot adapt. Dynamic societies institutionalize error-correction, enabling indefinite improvement without violence.</p>
+          <p class="zh">静态社会由传统和反理性迷因统治，拒绝变化，无法适应新问题。动态社会将纠错机制制度化，无需暴力即可实现无限改进。</p>
+        </div>
+
+        <div class="concept-card">
+          <div class="concept-icon">06</div>
+          <h3>Error Correction</h3>
+          <div class="zh-name">纠错机制</div>
+          <p class="en">The single most important mechanism for progress. Democracy's deepest virtue is not majority wisdom, but the peaceful removal of bad governments. Science's deepest virtue is falsifiability, not consensus.</p>
+          <p class="zh">进步最重要的单一机制。民主最深刻的优点不是多数人的智慧，而是和平移除糟糕政府的能力。科学最深刻的优点是可证伪性，而非共识。</p>
+        </div>
+
+        <div class="concept-card">
+          <div class="concept-icon">07</div>
+          <h3>Universal Explainers</h3>
+          <div class="zh-name">普适解释者</div>
+          <p class="en">Humans are the only entities in nature that create explanatory knowledge. Our cognitive capacity is universal — not limited to any ecological niche. This universality makes us uniquely significant in the cosmos.</p>
+          <p class="zh">人类是自然界中唯一创造解释性知识的实体。我们的认知能力是普适的——不局限于任何特定生态位。这种普适性使人类在宇宙中具有独特的重要性。</p>
+        </div>
+
+        <div class="concept-card">
+          <div class="concept-icon">08</div>
+          <h3>Rational Memes</h3>
+          <div class="zh-name">理性迷因</div>
+          <p class="en">Ideas that propagate by being good explanations, open to criticism and revision. Anti-rational memes spread by discouraging the very criticism that could eliminate them — the mechanism of dogma and cult thinking.</p>
+          <p class="zh">通过成为好解释（欢迎批判和修正）来传播的思想。反理性迷因则通过压制可能淘汰它们的批判来传播——这是教条与邪教思维的运作机制。</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════
+       THE REACH — Visual
+  ════════════════════════════════════════════════ -->
+  <section>
+    <div class="container">
+      <div class="sec-label">
+        <span class="en">The Principle of Optimism</span>
+        <span class="zh">乐观主义原则</span>
+      </div>
+
+      <div class="optimism-wrap">
+        <div class="opt-ring opt-ring-1"></div>
+        <div class="opt-ring opt-ring-2"></div>
+        <div class="opt-ring opt-ring-3"></div>
+
+        <p class="optimism-label">
+          <span class="en">Deutsch's Master Principle</span>
+          <span class="zh">多伊奇的核心原则</span>
+        </p>
+
+        <p class="optimism-quote">
+          <span class="en">"All evils are caused by <span class="accent">insufficient knowledge</span>."</span>
+          <span class="zh">「所有的恶，都源于<span class="accent">知识的不足</span>。」</span>
+        </p>
+
+        <p class="optimism-sub en">
+          This is not a prediction that things will automatically get better. It means that failure is never <em>necessary</em>. If something bad persists, it is because we lack the knowledge to fix it — and acquiring that knowledge is always possible in principle.
+        </p>
+        <p class="optimism-sub zh">
+          这不是预言未来必然美好。它的意思是：失败从来不是必然的。坏的事物之所以持续，是因为我们缺乏修复它的知识——而获取知识原则上始终是可能的。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════
+       CHAPTERS
+  ════════════════════════════════════════════════ -->
+  <section id="chapters">
+    <div class="container">
+      <div class="sec-label">
+        <span class="en">18 Chapters</span>
+        <span class="zh">18 章</span>
+      </div>
+
+      <h2 class="display">
+        <span class="en">The Architecture of Infinity</span>
+        <span class="zh">无穷的骨架</span>
+      </h2>
+
+      <p class="lead en">The book spirals outward from a single idea — good explanations — applying it in ever-wider domains: physics, politics, culture, aesthetics, and the human future.</p>
+      <p class="lead zh">本书以单一概念——好解释——为圆心向外螺旋扩展，将其应用于越来越宽广的领域：物理学、政治、文化、美学与人类的未来。</p>
+
+      <div class="chapters-grid">
+
+        <div class="chapter-card">
+          <span class="ch-num">01</span>
+          <div class="ch-body">
+            <h4>
+              <span class="en">The Reach of Explanations</span>
+              <span class="zh">解释的触及范围</span>
+            </h4>
+            <p class="en">Introduces the central concept: a good explanation is hard to vary and has reach beyond its original context. Science is not a prediction machine — it is an explanation engine.</p>
+            <p class="zh">引入核心概念：好解释"难以随意改变"，其触及范围超越原始情境。科学不是预测机器，而是解释引擎。</p>
+          </div>
+        </div>
+
+        <div class="chapter-card">
+          <span class="ch-num">02</span>
+          <div class="ch-body">
+            <h4>
+              <span class="en">Closer to Reality</span>
+              <span class="zh">更接近现实</span>
+            </h4>
+            <p class="en">Critiques empiricism. Observations do not generate theories — theories are bold conjectures. Instruments bring us closer to reality not by giving raw data, but by embodying our best explanations.</p>
+            <p class="zh">批判经验主义。观察不会产生理论，理论是大胆的猜想。仪器不是提供原始数据，而是体现了我们最好的解释。</p>
+          </div>
+        </div>
+
+        <div class="chapter-card">
+          <span class="ch-num">03</span>
+          <div class="ch-body">
+            <h4>
+              <span class="en">The Spark</span>
+              <span class="zh">火花</span>
+            </h4>
+            <p class="en">What caused the Scientific Revolution? Not instruments or wealth, but a new attitude: willingness to seek and criticize explanations. The spark that made knowledge self-sustaining for the first time.</p>
+            <p class="zh">是什么引发了科学革命？不是工具或财富，而是一种新态度：主动寻求并欢迎对解释的批判。这是使知识第一次变得自我持续的火花。</p>
+          </div>
+        </div>
+
+        <div class="chapter-card">
+          <span class="ch-num">04</span>
+          <div class="ch-body">
+            <h4>
+              <span class="en">Creation</span>
+              <span class="zh">创造</span>
+            </h4>
+            <p class="en">Knowledge is not found — it is created. Unlike biological evolution's blind variation, human knowledge creation is guided by conjecture, criticism, and the intentional search for better explanations.</p>
+            <p class="zh">知识不是被发现的，而是被创造的。不同于生物进化的盲目变异，人类知识的创造有方向——通过猜想、批判和有意识地寻找更好的解释。</p>
+          </div>
+        </div>
+
+        <div class="chapter-card">
+          <span class="ch-num">05</span>
+          <div class="ch-body">
+            <h4>
+              <span class="en">The Reality of Abstractions</span>
+              <span class="zh">抽象的现实性</span>
+            </h4>
+            <p class="en">Abstract entities — numbers, proofs, programs — are as real as physical objects. They have causal powers. Denying the reality of abstractions leads to incoherence about science itself.</p>
+            <p class="zh">抽象实体——数字、证明、程序——和物理对象一样真实，因为它们具有因果力量。否认抽象的实在性会破坏科学解释的基础。</p>
+          </div>
+        </div>
+
+        <div class="chapter-card">
+          <span class="ch-num">06</span>
+          <div class="ch-body">
+            <h4>
+              <span class="en">The Jump to Universality</span>
+              <span class="zh">跳跃到普适性</span>
+            </h4>
+            <p class="en">The most striking chapter. Arabic numerals, the Turing machine, DNA — each crossed a threshold beyond which it could do anything in its domain. This jump is discontinuous and irreversible.</p>
+            <p class="zh">最精彩的章节之一。阿拉伯数字、图灵机、DNA——都跨越了某个临界点，从此能在各自领域内处理任何问题。这种跳跃是不连续的、不可逆的。</p>
+          </div>
+        </div>
+
+        <div class="chapter-card">
+          <span class="ch-num">07</span>
+          <div class="ch-body">
+            <h4>
+              <span class="en">Artificial Creativity</span>
+              <span class="zh">人工创造力</span>
+            </h4>
+            <p class="en">Creativity is not magic — it is a specific kind of knowledge-creation process. Can computers be creative? The question reduces to: can they conjecture and criticize? Deutsch is open but skeptical of purely algorithmic creativity.</p>
+            <p class="zh">创造力不是神秘力量，而是一种创造新解释性知识的过程。计算机能有创造力吗？这个问题归结为：它们能进行猜想与批判吗？多伊奇持开放但审慎的态度。</p>
+          </div>
+        </div>
+
+        <div class="chapter-card">
+          <span class="ch-num">08</span>
+          <div class="ch-body">
+            <h4>
+              <span class="en">A Window on Infinity</span>
+              <span class="zh">无穷之窗</span>
+            </h4>
+            <p class="en">Uses Hilbert's Hotel to explore the counter-intuitive properties of infinity. The infinite reach of mathematical truths is not a paradox but a direct consequence of good explanations' structure.</p>
+            <p class="zh">用希尔伯特旅馆思想实验探索无穷大的反直觉性质。数学真理的无限延伸不是悖论，而是好解释结构的必然结果。</p>
+          </div>
+        </div>
+
+        <div class="chapter-card">
+          <span class="ch-num">09</span>
+          <div class="ch-body">
+            <h4>
+              <span class="en">Optimism</span>
+              <span class="zh">乐观主义</span>
+            </h4>
+            <p class="en">The Principle of Optimism: all evils are caused by insufficient knowledge. Pessimism claims some problems are fundamentally insoluble — a claim that would require proof no future knowledge could possibly help.</p>
+            <p class="zh">乐观主义原则：所有的恶都源于知识的不足。悲观主义声称某些问题根本无法解决——但这需要证明没有任何未来的知识能帮助解决它，而这种证明本身就是不可能的。</p>
+          </div>
+        </div>
+
+        <div class="chapter-card">
+          <span class="ch-num">10</span>
+          <div class="ch-body">
+            <h4>
+              <span class="en">A Dream of Socrates</span>
+              <span class="zh">苏格拉底之梦</span>
+            </h4>
+            <p class="en">A philosophical dialogue imagining Socrates and Hermes the night before the Oracle's pronouncement. Democracy's function is not to express majority wisdom but to enable error correction and peaceful removal of bad rulers.</p>
+            <p class="zh">虚构苏格拉底与赫尔墨斯的对话。民主的真正功能不是表达多数人的智慧，而是提供纠错机制——在不诉诸暴力的前提下移除糟糕的统治者。</p>
+          </div>
+        </div>
+
+        <div class="chapter-card">
+          <span class="ch-num">11</span>
+          <div class="ch-body">
+            <h4>
+              <span class="en">The Multiverse</span>
+              <span class="zh">多重宇宙</span>
+            </h4>
+            <p class="en">Deutsch's Many Worlds Interpretation of quantum mechanics: when a quantum event occurs, reality branches — all physically possible outcomes happen in parallel universes. Not science fiction, but the most straightforward reading of the mathematics.</p>
+            <p class="zh">量子力学的多世界诠释：量子事件发生时，现实分叉——所有物理上可能的结果都在平行宇宙中实现。这不是科幻，而是对量子力学数学最直接的诠释。</p>
+          </div>
+        </div>
+
+        <div class="chapter-card">
+          <span class="ch-num">12</span>
+          <div class="ch-body">
+            <h4>
+              <span class="en">A Physicist's History of Bad Philosophy</span>
+              <span class="zh">物理学家眼中的坏哲学史</span>
+            </h4>
+            <p class="en">A polemical critique of logical positivism, instrumentalism, postmodernism, and Bayesianism. They share one flaw: denying the primacy of explanation and grounding knowledge in something other than good explanatory theories.</p>
+            <p class="zh">对逻辑实证主义、工具主义、后现代主义的批判。它们的共同错误是否认解释的首要性，试图将知识建立在好解释之外的东西上。</p>
+          </div>
+        </div>
+
+        <div class="chapter-card">
+          <span class="ch-num">13</span>
+          <div class="ch-body">
+            <h4>
+              <span class="en">Choices</span>
+              <span class="zh">选择</span>
+            </h4>
+            <p class="en">Good political and moral decision-making requires the same structure as good science: conjecture, criticism, and error-correction. Ethics, like science, advances through creating better explanatory moral theories.</p>
+            <p class="zh">好的政治与道德决策和好的科学具有相同的结构：猜想、批判与纠错。道德知识和科学知识一样，通过创造更好的解释性理论来增长。</p>
+          </div>
+        </div>
+
+        <div class="chapter-card">
+          <span class="ch-num">14</span>
+          <div class="ch-body">
+            <h4>
+              <span class="en">Why Are Flowers Beautiful?</span>
+              <span class="zh">为什么花朵是美丽的？</span>
+            </h4>
+            <p class="en">Flowers evolved to attract bees, yet humans find them beautiful. This is not coincidence — it is evidence that beauty is objective. Deutsch distinguishes parochial beauty from universal beauty with the same reach as scientific knowledge.</p>
+            <p class="zh">花朵为吸引蜜蜂而进化，却也令人类觉得美丽——这不是巧合，而是美具有客观性的证据。多伊奇区分"地方性美感"与具有科学知识同等触及范围的"普适性美感"。</p>
+          </div>
+        </div>
+
+        <div class="chapter-card">
+          <span class="ch-num">15</span>
+          <div class="ch-body">
+            <h4>
+              <span class="en">The Evolution of Culture</span>
+              <span class="zh">文化的进化</span>
+            </h4>
+            <p class="en">Applies memetics to cultural evolution. Rational memes propagate by being good explanations. Anti-rational memes propagate by discouraging criticism. A civilization's health is measured by which type dominates.</p>
+            <p class="zh">将迷因理论应用于文化演化。理性迷因通过成为好解释来传播；反理性迷因通过压制批判来传播。一个文明的健康程度，由哪种迷因占主导来衡量。</p>
+          </div>
+        </div>
+
+        <div class="chapter-card">
+          <span class="ch-num">16</span>
+          <div class="ch-body">
+            <h4>
+              <span class="en">The Evolution of Creativity</span>
+              <span class="zh">创造力的进化</span>
+            </h4>
+            <p class="en">Creativity is not a narrow adaptation but the consequence of a single general-purpose capacity: the ability to create explanatory knowledge. Once present, it can be applied to anything — including things evolution never anticipated.</p>
+            <p class="zh">创造力不是针对特定场景的进化适应，而是通用解释性知识创造能力的副产品。这种能力一旦出现，就可以被应用于任何领域——包括进化史上从未出现过的问题。</p>
+          </div>
+        </div>
+
+        <div class="chapter-card">
+          <span class="ch-num">17</span>
+          <div class="ch-body">
+            <h4>
+              <span class="en">Unsustainable</span>
+              <span class="zh">不可持续</span>
+            </h4>
+            <p class="en">A frontal assault on "sustainability." Easter Island didn't collapse because resources ran out — it collapsed because a static society lacked knowledge to solve emerging problems. The real constraint is never resources, always knowledge.</p>
+            <p class="zh">对"可持续性"概念的根本性批判。复活节岛的崩溃不是资源耗尽，而是静态社会缺乏解决新问题的知识。真正的约束从来不是资源，而是知识。</p>
+          </div>
+        </div>
+
+        <div class="chapter-card">
+          <span class="ch-num">18</span>
+          <div class="ch-body">
+            <h4>
+              <span class="en">The Beginning</span>
+              <span class="zh">开始</span>
+            </h4>
+            <p class="en">The culminating chapter. Everything humanity has accomplished is vanishingly small compared to what is in principle achievable. The "beginning of infinity" is not a destination — it is the realization that no destination is final.</p>
+            <p class="zh">压轴之章。人类已取得的一切成就，与原则上可以实现的相比，微不足道。"无穷的开始"不是终点，而是认识到没有任何终点是最终的。</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════
+       MULTIVERSE
+  ════════════════════════════════════════════════ -->
+  <section id="multiverse">
+    <div class="container">
+      <div class="sec-label">
+        <span class="en">The Multiverse</span>
+        <span class="zh">多重宇宙</span>
+      </div>
+
+      <div class="multiverse-grid">
+        <div>
+          <h2 class="display">
+            <span class="en">Reality Is Far Richer<br>Than One Universe</span>
+            <span class="zh">现实，比一个宇宙<br>丰富得多</span>
+          </h2>
+          <p class="lead en">Deutsch is one of the world's leading advocates of the Many Worlds Interpretation of quantum mechanics — the idea that quantum events cause reality to branch into parallel universes.</p>
+          <p class="lead zh">多伊奇是量子力学多世界诠释最重要的倡导者之一。他认为，量子事件导致现实分叉为平行宇宙——这不是科幻，而是量子力学数学最直接的含义。</p>
+          <p class="body-text en">The multiverse is not a metaphor or a convenience. It is what the mathematics of quantum mechanics actually describes. Avoiding it requires ad hoc additions that violate the principle of good explanations.</p>
+          <p class="body-text zh">多重宇宙不是隐喻或便利的说法，而是量子力学数学真正描述的内容。为了回避它而添加的任何补丁，都违反了好解释的原则。</p>
+        </div>
+
+        <div>
+          <div class="multiverse-branches">
+            <div class="branch">
+              <span class="b-dot"></span>
+              <span class="en">A particle passes through a double slit</span>
+              <span class="zh">一个粒子穿过双缝</span>
+            </div>
+            <div class="branch">
+              <span class="b-dot"></span>
+              <span class="en">Reality branches: the particle goes through <em>both</em> slits in different universes</span>
+              <span class="zh">现实分叉：粒子在不同宇宙中<em>同时</em>穿过两条缝</span>
+            </div>
+            <div class="branch">
+              <span class="b-dot"></span>
+              <span class="en">The interference pattern is caused by particles from parallel universes interfering with ours</span>
+              <span class="zh">干涉条纹是来自平行宇宙的粒子与我们这个宇宙的粒子相互干涉的结果</span>
+            </div>
+            <div class="branch">
+              <span class="b-dot"></span>
+              <span class="en">This is the only explanation that is <em>hard to vary</em></span>
+              <span class="zh">这是唯一一个<em>难以随意改变</em>的解释</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════
+       QUOTES
+  ════════════════════════════════════════════════ -->
+  <section id="quotes">
+    <div class="container">
+      <div class="sec-label">
+        <span class="en">Memorable Quotes</span>
+        <span class="zh">金句</span>
+      </div>
+
+      <h2 class="display">
+        <span class="en">In His Own Words</span>
+        <span class="zh">多伊奇说</span>
+      </h2>
+
+      <div class="quotes-stack">
+
+        <div class="quote-card">
+          <p>"Without error-correction all information processing, and hence all knowledge-creation, is necessarily bounded. Error-correction is the beginning of infinity."</p>
+          <p class="zh-translation">「没有纠错机制，所有的信息处理，因此所有的知识创造，都必然是有界的。纠错，是无穷的开始。」</p>
+        </div>
+
+        <div class="quote-card">
+          <p>"Optimism is, in the first instance, a way of explaining failure, not prophesying success. It says that there is no fundamental obstacle — only a lack of knowledge."</p>
+          <p class="zh-translation">「乐观主义，首先是一种解释失败的方式，而不是预言成功。它说：不存在根本性的障碍，只有知识的缺乏。」</p>
+        </div>
+
+        <div class="quote-card">
+          <p>"Feeling insignificant because the universe is large has exactly the same logic as feeling inadequate because you are not a cow."</p>
+          <p class="zh-translation">「因为宇宙很大就感到渺小，和因为自己不是一头牛而感到不足，逻辑上完全一样。」</p>
+        </div>
+
+        <div class="quote-card">
+          <p>"The universe is not there to overwhelm us; it is our home, and our resource. The bigger the better."</p>
+          <p class="zh-translation">「宇宙不是来压倒我们的；它是我们的家，是我们的资源。越大越好。」</p>
+        </div>
+
+        <div class="quote-card">
+          <p>"If something is permitted by the laws of physics, the only thing preventing it is not knowing how."</p>
+          <p class="zh-translation">「如果某件事不违反物理定律，阻止我们的唯一东西，就是尚不知道怎么做。」</p>
+        </div>
+
+        <div class="quote-card">
+          <p>"People are entities that can create explanatory knowledge. That is what makes us significant, and what makes the place we live significant."</p>
+          <p class="zh-translation">「人类是能够创造解释性知识的实体。这就是我们的重要性所在，也是我们所居住之地的重要性所在。」</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════
+       SIGNIFICANCE
+  ════════════════════════════════════════════════ -->
+  <section id="significance">
+    <div class="container">
+      <div class="sec-label">
+        <span class="en">Why This Book Matters</span>
+        <span class="zh">为什么这本书重要</span>
+      </div>
+
+      <h2 class="display">
+        <span class="en">An Original Philosophical System,<br>Not a Pop Science Book</span>
+        <span class="zh">一部原创哲学体系，<br>而非科普读物</span>
+      </h2>
+
+      <p class="lead en">Deutsch does not summarize existing ideas — he constructs a new unified framework for understanding knowledge, progress, and the human condition.</p>
+      <p class="lead zh">多伊奇不是在总结已有的思想——他在构建一个全新的统一框架，用以理解知识、进步与人类处境。</p>
+
+      <div class="sig-grid">
+
+        <div class="sig-card">
+          <div class="num">01</div>
+          <h4>
+            <span class="en">Unprecedented Scope</span>
+            <span class="zh">前所未有的广度</span>
+          </h4>
+          <p class="en">No other book of its era attempts to unify epistemology, quantum mechanics, evolution, mathematics, aesthetics, and political philosophy under one explanatory framework.</p>
+          <p class="zh">同时代没有任何一本书试图用单一解释框架统一认识论、量子力学、进化论、数学、美学和政治哲学。</p>
+        </div>
+
+        <div class="sig-card">
+          <div class="num">02</div>
+          <h4>
+            <span class="en">Against the Prevailing Mood</span>
+            <span class="zh">逆时代精神而行</span>
+          </h4>
+          <p class="en">Published in the shadow of the 2008 financial crisis and rising techno-pessimism, it is an unabashed defense of reason, progress, and human potential — grounded in rigorous philosophy, not wishful thinking.</p>
+          <p class="zh">在2008年金融危机和技术悲观主义盛行的阴影中出版，它是对理性、进步和人类潜力毫不掩饰的捍卫——建立在严密哲学论证上，而非一厢情愿。</p>
+        </div>
+
+        <div class="sig-card">
+          <div class="num">03</div>
+          <h4>
+            <span class="en">A New Standard for Knowledge</span>
+            <span class="zh">知识的新标准</span>
+          </h4>
+          <p class="en">"Hard to vary" is an original criterion for good explanations — neither naive falsificationism nor Bayesian confirmation theory. It accounts for why unfalsifiable theories like the multiverse are still scientifically respectable.</p>
+          <p class="zh">"难以随意改变"是对好解释的原创判定标准——既非朴素的证伪主义，也非贝叶斯确证理论。它解释了为什么多重宇宙这样无法直接证伪的理论在科学上仍然是合理的。</p>
+        </div>
+
+        <div class="sig-card">
+          <div class="num">04</div>
+          <h4>
+            <span class="en">Explanation Over Prediction</span>
+            <span class="zh">解释优先于预测</span>
+          </h4>
+          <p class="en">Most philosophy of science treats prediction as the gold standard. Deutsch reverses this: explanation is primary, prediction is a by-product. This has profound consequences for how we evaluate scientific theories.</p>
+          <p class="zh">大多数科学哲学以预测为金标准。多伊奇颠覆了这一点：解释是首要的，预测不过是副产品。这对我们评价科学理论具有深远的意义。</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════════════════
+       FOOTER
+  ════════════════════════════════════════════════ -->
+  <footer>
+    <p class="footer-mark">
+      <span class="en">The Beginning of Infinity</span>
+      <span class="zh">无穷的开始</span>
+    </p>
+    <p class="footer-meta">
+      <span class="en">David Deutsch · Viking / Penguin · 2011 · A Visual Guide</span>
+      <span class="zh">大卫·多伊奇 · 2011 · 可视化导读</span>
+    </p>
+  </footer>
+
+  <!-- ════════════════════════════════════════════════
+       JAVASCRIPT
+  ════════════════════════════════════════════════ -->
+  <script>
+    // Progress bar
+    const pb = document.getElementById('pb');
+    function updateProgress() {
+      const scrolled = window.scrollY;
+      const total = document.documentElement.scrollHeight - window.innerHeight;
+      pb.style.width = (total > 0 ? (scrolled / total) * 100 : 0) + '%';
+    }
+
+    // Sticky nav
+    const snav = document.getElementById('snav');
+    const heroH = document.querySelector('.hero').offsetHeight;
+    function updateNav() {
+      if (window.scrollY > heroH * 0.6) {
+        snav.classList.add('show');
+      } else {
+        snav.classList.remove('show');
+      }
+    }
+
+    window.addEventListener('scroll', () => {
+      updateProgress();
+      updateNav();
+    }, { passive: true });
+
+    // Language toggle
+    const body = document.body;
+    const langBtn = document.getElementById('langBtn');
+    const enTab = document.getElementById('enTab');
+    const zhTab = document.getElementById('zhTab');
+
+    langBtn.addEventListener('click', () => {
+      const isZh = body.classList.contains('lang-zh');
+      if (isZh) {
+        body.classList.replace('lang-zh', 'lang-en');
+        enTab.classList.add('on');
+        zhTab.classList.remove('on');
+      } else {
+        body.classList.replace('lang-en', 'lang-zh');
+        zhTab.classList.add('on');
+        enTab.classList.remove('on');
+      }
+    });
+  </script>
+
+</body>
+</html>
