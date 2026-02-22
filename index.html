@@ -11,6 +11,20 @@
 
   <style>
   /* ╔══════════════════════════════════════════════════════════╗
+     ║  CSS @PROPERTY — animatable custom properties             ║
+     ╚══════════════════════════════════════════════════════════╝ */
+  @property --border-angle {
+    syntax: '<angle>';
+    inherits: false;
+    initial-value: 0deg;
+  }
+  @property --glow-r {
+    syntax: '<percentage>';
+    inherits: false;
+    initial-value: 0%;
+  }
+
+  /* ╔══════════════════════════════════════════════════════════╗
      ║  TOKENS                                                   ║
      ╚══════════════════════════════════════════════════════════╝ */
   :root {
@@ -82,8 +96,15 @@
     from { width: 0; }
     to   { width: 100%; }
   }
+  @keyframes border-rotate {
+    to { --border-angle: 360deg; }
+  }
+  @keyframes coalesce-in {
+    from { opacity: 0; filter: blur(18px); transform: translateY(18px); }
+    to   { opacity: 1; filter: blur(0);    transform: translateY(0); }
+  }
 
-  /* Scroll reveal */
+  /* Scroll reveal — JS fallback */
   .reveal {
     opacity: 0;
     transform: translateY(28px);
@@ -94,6 +115,22 @@
   .reveal.visible {
     opacity: 1;
     transform: none;
+    filter: none;
+  }
+
+  /* CSS Scroll-Driven Animations — progressive enhancement */
+  @supports (animation-timeline: view()) {
+    .reveal {
+      opacity: 0;
+      transform: none;
+      filter: blur(18px);
+      transition: none;
+      animation: coalesce-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 58%;
+    }
+    /* noop — CSS handles it in modern browsers */
+    .reveal.visible { opacity: 1; filter: none; transform: none; }
   }
 
   /* Gradient text utility */
@@ -175,6 +212,31 @@
   .lpill span.on { background: var(--cyan); color: #000; font-weight: 500; }
 
   /* ╔══════════════════════════════════════════════════════════╗
+     ║  STARFIELD                                                ║
+     ╚══════════════════════════════════════════════════════════╝ */
+  #starfield {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+  #starfield::before, #starfield::after {
+    content: '';
+    position: absolute; inset: 0;
+    box-shadow: var(--stars-a, none);
+    animation: star-drift 180s linear infinite;
+  }
+  #starfield::after {
+    box-shadow: var(--stars-b, none);
+    animation-duration: 240s;
+    animation-direction: reverse;
+  }
+  @keyframes star-drift {
+    from { transform: translateY(0); }
+    to   { transform: translateY(-30px); }
+  }
+
+  /* ╔══════════════════════════════════════════════════════════╗
      ║  HERO                                                     ║
      ╚══════════════════════════════════════════════════════════╝ */
   .hero {
@@ -185,20 +247,23 @@
     overflow: hidden;
     background: radial-gradient(ellipse at 65% 50%, rgba(0,30,60,0.7) 0%, transparent 65%),
                 var(--void);
+    z-index: 1;
   }
 
-  /* Expanding rings */
+  /* Expanding rings — mix-blend-mode: screen for real light feel */
   .ring-origin {
     position: absolute;
     right: 22%;
     top: 50%;
+    mix-blend-mode: screen;
   }
   .ring {
     position: absolute;
     border-radius: 50%;
-    border: 1px solid rgba(0,212,255,0.6);
+    border: 1px solid rgba(160,220,255,0.9);
     transform: translate(-50%, -50%);
     animation: ring-out 7s ease-out infinite;
+    mix-blend-mode: screen;
   }
   .ring:nth-child(1) { animation-delay: 0s; }
   .ring:nth-child(2) { animation-delay: 1.75s; }
@@ -207,10 +272,12 @@
 
   .ring-dot {
     position: absolute;
-    width: 8px; height: 8px;
+    width: 5px; height: 5px;
     border-radius: 50%;
-    background: var(--cyan);
+    background: #fff;
     transform: translate(-50%, -50%);
+    box-shadow: 0 0 0 2px rgba(200,240,255,0.3), 0 0 20px 8px rgba(0,212,255,0.5), 0 0 60px 30px rgba(0,212,255,0.15);
+    mix-blend-mode: screen;
     animation: breathe 3s ease-in-out infinite;
   }
 
@@ -452,15 +519,31 @@
   }
   .bento-cell:hover::before { opacity: 0.1; }
 
-  /* Glow border on hover */
+  /* Animated conic border on hover — powered by CSS @property */
   .bento-cell::after {
     content: '';
-    position: absolute; inset: 0;
-    border: 1px solid transparent;
+    position: absolute; inset: -1px;
+    border-radius: inherit;
+    background: conic-gradient(
+      from var(--border-angle),
+      transparent 75%,
+      rgba(0,212,255,0.7) 90%,
+      transparent 100%
+    );
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    padding: 1px;
     pointer-events: none;
-    transition: border-color 0.3s;
+    opacity: 0;
+    transition: opacity 0.3s;
   }
-  .bento-cell:hover::after { border-color: rgba(0,212,255,0.25); }
+  .bento-cell:hover::after {
+    opacity: 1;
+    animation: border-rotate 3s linear infinite;
+  }
 
   .cell-tag {
     font-family: var(--mono);
@@ -549,11 +632,22 @@
     width: 100vw;
     margin-left: calc(50% - 50vw);
     padding: 9rem 2rem;
-    background: #020507;
+    background: #010306;
     position: relative; overflow: hidden;
     text-align: center;
     border-top: 1px solid rgba(0,212,255,0.05);
     border-bottom: 1px solid rgba(0,212,255,0.05);
+    /* Noise grain for texture */
+    isolation: isolate;
+  }
+  .full-bleed::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
   }
 
   .opt-bg {
@@ -815,6 +909,19 @@
 
 <body class="lang-zh">
 
+  <!-- SVG quantum distortion filter (invisible) -->
+  <svg style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
+    <defs>
+      <filter id="quantum">
+        <feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="3" result="noise"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="0" xChannelSelector="R" yChannelSelector="G" id="qdm"/>
+      </filter>
+    </defs>
+  </svg>
+
+  <!-- Starfield layer -->
+  <div id="starfield" aria-hidden="true"></div>
+
   <div id="pb"></div>
 
   <!-- STICKY NAV -->
@@ -855,7 +962,7 @@
         <span class="zh">大卫·多伊奇 · 牛津大学 · 2011</span>
       </div>
 
-      <h1 class="hero-title">
+      <h1 class="hero-title quantum-target">
         <span class="en">
           <span class="solid">The Beginning</span>
           <span class="outline">of Infinity</span>
@@ -1109,7 +1216,7 @@
       <span class="en">The Principle of Optimism · David Deutsch</span>
       <span class="zh">乐观主义原则 · 大卫·多伊奇</span>
     </p>
-    <p class="opt-quote reveal">
+    <p class="opt-quote reveal quantum-target">
       <span class="en">"All evils are caused by<br><span class="accent">insufficient knowledge</span>."</span>
       <span class="zh">「所有的恶，<br>都源于<span class="accent">知识的不足</span>。」</span>
     </p>
@@ -1496,24 +1603,22 @@
   <!-- ═══════════════════════════════ JAVASCRIPT ═══════════════════════════════ -->
   <script>
   (() => {
-    /* ── Progress bar ── */
-    const pb = document.getElementById('pb');
+    /* ── Progress bar + nav ── */
+    const pb   = document.getElementById('pb');
     const snav = document.getElementById('snav');
     const heroH = document.querySelector('.hero').offsetHeight;
 
-    function onScroll() {
+    window.addEventListener('scroll', () => {
       const s = window.scrollY;
       const h = document.documentElement.scrollHeight - window.innerHeight;
       pb.style.width = (h > 0 ? (s / h) * 100 : 0) + '%';
       snav.classList.toggle('show', s > heroH * 0.55);
-    }
-    window.addEventListener('scroll', onScroll, { passive: true });
+    }, { passive: true });
 
     /* ── Language toggle ── */
     const body = document.body;
     const enTab = document.getElementById('enTab');
     const zhTab = document.getElementById('zhTab');
-
     document.getElementById('langBtn').addEventListener('click', () => {
       const isZh = body.classList.contains('lang-zh');
       body.classList.toggle('lang-zh', !isZh);
@@ -1522,65 +1627,95 @@
       zhTab.classList.toggle('on', !isZh);
     });
 
-    /* ── Scroll reveal ── */
-    const revealObs = new IntersectionObserver((entries) => {
-      entries.forEach((e, i) => {
-        if (e.isIntersecting) {
+    /* ── Starfield generation ── */
+    function makeStar() {
+      const x = (Math.random() * 200 - 100).toFixed(2) + 'vw';
+      const y = (Math.random() * 400 - 200).toFixed(2) + 'vh';
+      const op = (0.15 + Math.random() * 0.55).toFixed(2);
+      const sz = Math.random() < 0.82 ? '0px' : '1px';
+      return `${x} ${y} ${sz} rgba(200,230,255,${op})`;
+    }
+    const sf = document.getElementById('starfield');
+    if (sf) {
+      const a = Array.from({length: 220}, makeStar).join(',');
+      const b = Array.from({length: 160}, makeStar).join(',');
+      sf.style.setProperty('--stars-a', a);
+      sf.style.setProperty('--stars-b', b);
+    }
+
+    /* ── Scroll reveal — only if browser lacks scroll-driven animations ── */
+    const hasScrollDriven = CSS.supports('animation-timeline', 'view()');
+
+    if (!hasScrollDriven) {
+      const revealObs = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (!e.isIntersecting) return;
           const el = e.target;
-          const delay = parseFloat(el.dataset.delay || 0);
-          setTimeout(() => el.classList.add('visible'), delay * 1000);
+          const siblings = [...el.parentElement.querySelectorAll('.reveal')];
+          const pos = siblings.indexOf(el);
+          setTimeout(() => el.classList.add('visible'), (pos % 4) * 80);
           revealObs.unobserve(el);
-        }
-      });
-    }, { threshold: 0.08 });
+        });
+      }, { threshold: 0.08 });
+      document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+    } else {
+      // Modern browsers: mark all as visible so nothing is stuck invisible
+      // CSS handles it; the class is a no-op
+    }
 
-    /* Stagger children within container rows */
-    document.querySelectorAll('.reveal').forEach((el, idx) => {
-      // Stagger siblings slightly
-      const siblings = el.parentElement.querySelectorAll('.reveal');
-      let pos = 0;
-      siblings.forEach((s, i) => { if (s === el) pos = i; });
-      el.dataset.delay = (pos % 4) * 0.08;
-      revealObs.observe(el);
-    });
-
-    /* ── Stat counter animation ── */
+    /* ── Stat counter ── */
     const counterObs = new IntersectionObserver((entries) => {
       entries.forEach(e => {
-        if (e.isIntersecting) {
-          animateCount(e.target);
-          counterObs.unobserve(e.target);
-        }
+        if (!e.isIntersecting) return;
+        const el = e.target;
+        const target = parseInt(el.dataset.count, 10);
+        const dur = 1400, start = performance.now();
+        (function tick(now) {
+          const p = Math.min((now - start) / dur, 1);
+          el.textContent = Math.floor((1 - Math.pow(1 - p, 3)) * target);
+          p < 1 ? requestAnimationFrame(tick) : (el.textContent = target);
+        })(performance.now());
+        counterObs.unobserve(el);
       });
     }, { threshold: 0.5 });
-
     document.querySelectorAll('[data-count]').forEach(el => counterObs.observe(el));
-
-    function animateCount(el) {
-      const target = parseInt(el.dataset.count, 10);
-      const dur = 1400;
-      const start = performance.now();
-      (function tick(now) {
-        const p = Math.min((now - start) / dur, 1);
-        const eased = 1 - Math.pow(1 - p, 3);
-        el.textContent = Math.floor(eased * target);
-        if (p < 1) requestAnimationFrame(tick);
-        else el.textContent = target;
-      })(performance.now());
-    }
 
     /* ── 3D tilt on bento cells ── */
     document.querySelectorAll('.bento-cell').forEach(card => {
-      card.addEventListener('mousemove', (e) => {
+      card.addEventListener('mousemove', e => {
         const r = card.getBoundingClientRect();
         const x = (e.clientX - r.left) / r.width  - 0.5;
         const y = (e.clientY - r.top)  / r.height - 0.5;
         card.style.transform = `perspective(700px) rotateX(${-y * 6}deg) rotateY(${x * 6}deg) translateZ(6px)`;
       });
-      card.addEventListener('mouseleave', () => {
-        card.style.transform = '';
-      });
+      card.addEventListener('mouseleave', () => { card.style.transform = ''; });
     });
+
+    /* ── SVG feTurbulence quantum distortion ── */
+    const qdm = document.getElementById('qdm');
+    if (qdm) {
+      let frame, current = 0, target = 0;
+      const EASE = 0.10;
+
+      function animateQdm() {
+        current += (target - current) * EASE;
+        qdm.setAttribute('scale', current.toFixed(2));
+        if (Math.abs(target - current) > 0.2) frame = requestAnimationFrame(animateQdm);
+        else if (target === 0) { current = 0; qdm.setAttribute('scale', '0'); }
+      }
+
+      document.querySelectorAll('.quantum-target').forEach(el => {
+        el.style.transition = 'filter 0.1s';
+        el.addEventListener('mouseenter', () => {
+          el.style.filter = 'url(#quantum)';
+          target = 28; cancelAnimationFrame(frame); animateQdm();
+        });
+        el.addEventListener('mouseleave', () => {
+          target = 0; cancelAnimationFrame(frame); animateQdm();
+          setTimeout(() => { if (current < 0.5) el.style.filter = 'none'; }, 400);
+        });
+      });
+    }
 
   })();
   </script>
